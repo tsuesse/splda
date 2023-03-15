@@ -2,8 +2,8 @@
 
 # Introduction
 
-Here we give an introduction to the package conditionalLDA in R! We
-follow the methods described in:
+Here we give an introduction to the package “splda” in R! We follow the
+methods described in:
 
 Suesse, T., Grupp. V., Brenning, A. “Spatial Linear Discriminant
 Analysis Approaches for Remote-Sensing Classification” (2023)
@@ -14,7 +14,7 @@ package has been preprocessed.
 ``` r
 # install.packages(devtools)
 # library(devtools)
-# devtools::install_github("tsuesse/conditionalLDA")
+# devtools::install_github("tsuesse/splda")
 ```
 
 ## Data and Methods
@@ -34,7 +34,7 @@ normal with only *n* = 14, 400 pixels and 1, 600 fields \* **formula**
 formula for LDA \* **predictors** predictors for LDA
 
 ``` r
-library(conditionalLDA)
+library(splda)
 #> Lade nötiges Paket: MASS
 #> Lade nötiges Paket: mda
 #> Lade nötiges Paket: class
@@ -250,7 +250,7 @@ data_test<-data[-s_srs,]
 fittest <- MASS::lda(formula, data_train)
 pred_lda <- predict(fittest, newdata = data_test, type = response)
 cat("error rate LDA",mean(pred_lda$class != data$croptype[-s_srs]),"\n")
-#> error rate LDA 0.3400831
+#> error rate LDA 0.3208723
 
 # majority filter
 data_test1<-data_test
@@ -258,7 +258,7 @@ data_test1[,"field"]<-as.factor(data_test1[,"field"])
 fac <- block # fac defines field level for majority filter
 pred_maj <- lda_predmaj(fittest, newdata = data_test1, fac = "field")
 cat("error rate majority filter",mean(pred_maj != data$croptype[-s_srs]),"\n")
-#> error rate majority filter 0.1428571
+#> error rate majority filter 0.1188251
 ```
 
 Next we train the spatial model on the transformed feature data, first
@@ -292,12 +292,12 @@ fit_sp <- lda_sp(
 #> variofit: minimisation function used: optim 
 #> ############### BEGIN SANN ################
 #> Cov-model matern 
-#> final value SANN 178.4332 
+#> final value SANN 127.9082 
 #> ############### END SANN - BEGIN OPTIM ################
 #> N = 3, M = 5 machine precision = 2.22045e-16
 #> Line search cannot locate an adequate point after 20 function
 #> and gradient evaluations
-#> final  value 178.433162 
+#> final  value 127.908194 
 #> stopped after 0 iterations
 #> ############### END  OPTIM ################
 #> prac-range start
@@ -306,17 +306,17 @@ fit_sp <- lda_sp(
 #> covariance model is: matern
 #> parameter estimates:
 #>    tausq  sigmasq      phi    kappa 
-#>   0.0806   0.9194 508.6477   0.0183 
+#>   0.3958   0.6042 800.0000   0.0183 
 #> Practical Range with cor=0.05 for asymptotic range: NULL
 #> 
-#> variofit: minimised weighted sum of squares = 178.4332
+#> variofit: minimised weighted sum of squares = 127.9082
 #> Fit Model= exponential 
 #> variofit: covariance model used is exponential 
 #> variofit: weights used: npairs 
 #> variofit: minimisation function used: optim 
 #> ############### BEGIN SANN ################
 #> Cov-model exponential 
-#> final value SANN 326.8659 
+#> final value SANN 292.8631 
 #> ############### END SANN - BEGIN OPTIM ################
 #> N = 3, M = 5 machine precision = 2.22045e-16
 #> 
@@ -326,9 +326,9 @@ fit_sp <- lda_sp(
 #> BFGS updates skipped 0
 #> active bounds at final generalized Cauchy point 0
 #> norm of the final projected gradient 0
-#> final function value 326.866
+#> final function value 292.863
 #> 
-#> final  value 326.865914 
+#> final  value 292.863108 
 #> converged
 #> ############### END  OPTIM ################
 #> prac-range start
@@ -340,20 +340,27 @@ fit_sp <- lda_sp(
 #>  0.5000  0.5000 20.0000  4.2941 
 #> Practical Range with cor=0.05 for asymptotic range: NULL
 #> 
-#> variofit: minimised weighted sum of squares = 326.8659
+#> variofit: minimised weighted sum of squares = 292.8631
 #> Fit Model= gaussian 
 #> variofit: covariance model used is gaussian 
 #> variofit: weights used: npairs 
 #> variofit: minimisation function used: optim 
 #> ############### BEGIN SANN ################
 #> Cov-model gaussian 
-#> final value SANN 332.0366 
+#> final value SANN 278.3142 
 #> ############### END SANN - BEGIN OPTIM ################
 #> N = 3, M = 5 machine precision = 2.22045e-16
-#> Line search cannot locate an adequate point after 20 function
-#> and gradient evaluations
-#> final  value 332.036575 
-#> stopped after 0 iterations
+#> 
+#> iterations 0
+#> function evaluations 1
+#> segments explored during Cauchy searches 0
+#> BFGS updates skipped 0
+#> active bounds at final generalized Cauchy point 0
+#> norm of the final projected gradient 0
+#> final function value 278.314
+#> 
+#> final  value 278.314194 
+#> converged
 #> ############### END  OPTIM ################
 #> prac-range start
 #> prac-range end
@@ -361,31 +368,29 @@ fit_sp <- lda_sp(
 #> covariance model is: gaussian
 #> parameter estimates:
 #>   tausq sigmasq     phi   kappa 
-#>  0.5000  0.5000 20.5077  0.9318 
+#>  0.5000  0.5000 20.0000  4.2941 
 #> Practical Range with cor=0.05 for asymptotic range: NULL
 #> 
-#> variofit: minimised weighted sum of squares = 332.0366
+#> variofit: minimised weighted sum of squares = 278.3142
 #> Fit Model= spherical 
 #> variofit: covariance model used is spherical 
 #> variofit: weights used: npairs 
 #> variofit: minimisation function used: optim 
 #> ############### BEGIN SANN ################
 #> Cov-model spherical 
-#> final value SANN 332.0372 
+#> final value SANN 271.0988 
 #> ############### END SANN - BEGIN OPTIM ################
 #> N = 3, M = 5 machine precision = 2.22045e-16
 #> 
 #> iterations 1
-#> function evaluations 18
-#> segments explored during Cauchy searches 2
+#> function evaluations 3
+#> segments explored during Cauchy searches 1
 #> BFGS updates skipped 0
-#> active bounds at final generalized Cauchy point 1
-#> norm of the final projected gradient 0.000760341
-#> final function value 332.037
+#> active bounds at final generalized Cauchy point 0
+#> norm of the final projected gradient 1.35572e-08
+#> final function value 271.099
 #> 
-#> Warning:  more than 10 function and gradient evaluations
-#>    in the last line search
-#> final  value 332.037223 
+#> final  value 271.098774 
 #> converged
 #> ############### END  OPTIM ################
 #> prac-range start
@@ -394,18 +399,18 @@ fit_sp <- lda_sp(
 #> covariance model is: spherical
 #> parameter estimates:
 #>   tausq sigmasq     phi   kappa 
-#>  0.4992  0.5008 42.9801  1.8317 
+#>  0.3112  0.6888 34.2848 12.8383 
 #> Practical Range with cor=0.05 for asymptotic range: NULL
 #> 
-#> variofit: minimised weighted sum of squares = 332.0372
+#> variofit: minimised weighted sum of squares = 271.0988
 ```
 
 ![](README_files/figure-markdown_github/unnamed-chunk-6-1.png)
 
     #> **************************************************************************
     #> Model chosen for Variable l = 1  is  matern 
-    #> with Parameters  0.08059371 508.6477 0.9194063 0.01831564  (tausq,phi,sigmasq,kappa)
-    #> Practical Range with Corr<0.01 is 669.5392 
+    #> with Parameters  0.395802 800 0.604198 0.01831564  (tausq,phi,sigmasq,kappa)
+    #> Practical Range with Corr<0.01 is 1053.05 
     #> **************************************************************************
     #> pars= 500 0.2  (phi,tausq)
     #> variog: computing omnidirectional variogram
@@ -416,12 +421,12 @@ fit_sp <- lda_sp(
     #> variofit: minimisation function used: optim 
     #> ############### BEGIN SANN ################
     #> Cov-model matern 
-    #> final value SANN 213.9158 
+    #> final value SANN 118.7445 
     #> ############### END SANN - BEGIN OPTIM ################
     #> N = 3, M = 5 machine precision = 2.22045e-16
     #> Line search cannot locate an adequate point after 20 function
     #> and gradient evaluations
-    #> final  value 213.915792 
+    #> final  value 118.744523 
     #> stopped after 0 iterations
     #> ############### END  OPTIM ################
     #> prac-range start
@@ -430,17 +435,17 @@ fit_sp <- lda_sp(
     #> covariance model is: matern
     #> parameter estimates:
     #>    tausq  sigmasq      phi    kappa 
-    #>   0.5000   0.5000 108.9695   0.0333 
+    #>   0.5000   0.5000 198.8940   0.0325 
     #> Practical Range with cor=0.05 for asymptotic range: NULL
     #> 
-    #> variofit: minimised weighted sum of squares = 213.9158
+    #> variofit: minimised weighted sum of squares = 118.7445
     #> Fit Model= exponential 
     #> variofit: covariance model used is exponential 
     #> variofit: weights used: npairs 
     #> variofit: minimisation function used: optim 
     #> ############### BEGIN SANN ################
     #> Cov-model exponential 
-    #> final value SANN 282.1415 
+    #> final value SANN 221.1046 
     #> ############### END SANN - BEGIN OPTIM ################
     #> N = 3, M = 5 machine precision = 2.22045e-16
     #> 
@@ -450,9 +455,9 @@ fit_sp <- lda_sp(
     #> BFGS updates skipped 0
     #> active bounds at final generalized Cauchy point 0
     #> norm of the final projected gradient 0
-    #> final function value 282.141
+    #> final function value 221.105
     #> 
-    #> final  value 282.141480 
+    #> final  value 221.104571 
     #> converged
     #> ############### END  OPTIM ################
     #> prac-range start
@@ -464,14 +469,14 @@ fit_sp <- lda_sp(
     #>  0.5000  0.5000 20.0000  4.2941 
     #> Practical Range with cor=0.05 for asymptotic range: NULL
     #> 
-    #> variofit: minimised weighted sum of squares = 282.1415
+    #> variofit: minimised weighted sum of squares = 221.1046
     #> Fit Model= gaussian 
     #> variofit: covariance model used is gaussian 
     #> variofit: weights used: npairs 
     #> variofit: minimisation function used: optim 
     #> ############### BEGIN SANN ################
     #> Cov-model gaussian 
-    #> final value SANN 250.551 
+    #> final value SANN 190.4787 
     #> ############### END SANN - BEGIN OPTIM ################
     #> N = 3, M = 5 machine precision = 2.22045e-16
     #> 
@@ -481,9 +486,9 @@ fit_sp <- lda_sp(
     #> BFGS updates skipped 0
     #> active bounds at final generalized Cauchy point 0
     #> norm of the final projected gradient 0
-    #> final function value 250.551
+    #> final function value 190.479
     #> 
-    #> final  value 250.551035 
+    #> final  value 190.478661 
     #> converged
     #> ############### END  OPTIM ################
     #> prac-range start
@@ -495,142 +500,14 @@ fit_sp <- lda_sp(
     #>  0.5000  0.5000 20.0000  4.2941 
     #> Practical Range with cor=0.05 for asymptotic range: NULL
     #> 
-    #> variofit: minimised weighted sum of squares = 250.551
+    #> variofit: minimised weighted sum of squares = 190.4787
     #> Fit Model= spherical 
     #> variofit: covariance model used is spherical 
     #> variofit: weights used: npairs 
     #> variofit: minimisation function used: optim 
     #> ############### BEGIN SANN ################
     #> Cov-model spherical 
-    #> final value SANN 225.7832 
-    #> ############### END SANN - BEGIN OPTIM ################
-    #> N = 3, M = 5 machine precision = 2.22045e-16
-    #> 
-    #> iterations 1
-    #> function evaluations 3
-    #> segments explored during Cauchy searches 1
-    #> BFGS updates skipped 0
-    #> active bounds at final generalized Cauchy point 0
-    #> norm of the final projected gradient 8.6402e-09
-    #> final function value 225.783
-    #> 
-    #> final  value 225.783173 
-    #> converged
-    #> ############### END  OPTIM ################
-    #> prac-range start
-    #> prac-range end
-    #> variofit: model parameters estimated by WLS (weighted least squares):
-    #> covariance model is: spherical
-    #> parameter estimates:
-    #>   tausq sigmasq     phi   kappa 
-    #>  0.4927  0.5073 32.2292  8.2314 
-    #> Practical Range with cor=0.05 for asymptotic range: NULL
-    #> 
-    #> variofit: minimised weighted sum of squares = 225.7832
-
-![](README_files/figure-markdown_github/unnamed-chunk-6-2.png)
-
-    #> **************************************************************************
-    #> Model chosen for Variable l = 2  is  matern 
-    #> with Parameters  0.5 108.9695 0.5 0.03330756  (tausq,phi,sigmasq,kappa)
-    #> Practical Range with Corr<0.01 is 194.9789 
-    #> **************************************************************************
-    #> pars= 500 0.2  (phi,tausq)
-    #> variog: computing omnidirectional variogram
-    #> variogram finished
-    #> Fit Model= matern 
-    #> variofit: covariance model used is matern 
-    #> variofit: weights used: npairs 
-    #> variofit: minimisation function used: optim 
-    #> ############### BEGIN SANN ################
-    #> Cov-model matern 
-    #> final value SANN 77.96878 
-    #> ############### END SANN - BEGIN OPTIM ################
-    #> N = 3, M = 5 machine precision = 2.22045e-16
-    #> Line search cannot locate an adequate point after 20 function
-    #> and gradient evaluations
-    #> final  value 77.968781 
-    #> stopped after 0 iterations
-    #> ############### END  OPTIM ################
-    #> prac-range start
-    #> prac-range end
-    #> variofit: model parameters estimated by WLS (weighted least squares):
-    #> covariance model is: matern
-    #> parameter estimates:
-    #>    tausq  sigmasq      phi    kappa 
-    #>   0.5000   0.5000 278.3451   0.0246 
-    #> Practical Range with cor=0.05 for asymptotic range: NULL
-    #> 
-    #> variofit: minimised weighted sum of squares = 77.9688
-    #> Fit Model= exponential 
-    #> variofit: covariance model used is exponential 
-    #> variofit: weights used: npairs 
-    #> variofit: minimisation function used: optim 
-    #> ############### BEGIN SANN ################
-    #> Cov-model exponential 
-    #> final value SANN 195.0797 
-    #> ############### END SANN - BEGIN OPTIM ################
-    #> N = 3, M = 5 machine precision = 2.22045e-16
-    #> 
-    #> iterations 0
-    #> function evaluations 1
-    #> segments explored during Cauchy searches 0
-    #> BFGS updates skipped 0
-    #> active bounds at final generalized Cauchy point 0
-    #> norm of the final projected gradient 0
-    #> final function value 195.08
-    #> 
-    #> final  value 195.079748 
-    #> converged
-    #> ############### END  OPTIM ################
-    #> prac-range start
-    #> prac-range end
-    #> variofit: model parameters estimated by WLS (weighted least squares):
-    #> covariance model is: exponential
-    #> parameter estimates:
-    #>   tausq sigmasq     phi   kappa 
-    #>  0.5000  0.5000 20.0000  4.2941 
-    #> Practical Range with cor=0.05 for asymptotic range: NULL
-    #> 
-    #> variofit: minimised weighted sum of squares = 195.0797
-    #> Fit Model= gaussian 
-    #> variofit: covariance model used is gaussian 
-    #> variofit: weights used: npairs 
-    #> variofit: minimisation function used: optim 
-    #> ############### BEGIN SANN ################
-    #> Cov-model gaussian 
-    #> final value SANN 160.1052 
-    #> ############### END SANN - BEGIN OPTIM ################
-    #> N = 3, M = 5 machine precision = 2.22045e-16
-    #> 
-    #> iterations 0
-    #> function evaluations 1
-    #> segments explored during Cauchy searches 0
-    #> BFGS updates skipped 0
-    #> active bounds at final generalized Cauchy point 0
-    #> norm of the final projected gradient 0
-    #> final function value 160.105
-    #> 
-    #> final  value 160.105246 
-    #> converged
-    #> ############### END  OPTIM ################
-    #> prac-range start
-    #> prac-range end
-    #> variofit: model parameters estimated by WLS (weighted least squares):
-    #> covariance model is: gaussian
-    #> parameter estimates:
-    #>   tausq sigmasq     phi   kappa 
-    #>  0.5000  0.5000 20.0000  4.2941 
-    #> Practical Range with cor=0.05 for asymptotic range: NULL
-    #> 
-    #> variofit: minimised weighted sum of squares = 160.1052
-    #> Fit Model= spherical 
-    #> variofit: covariance model used is spherical 
-    #> variofit: weights used: npairs 
-    #> variofit: minimisation function used: optim 
-    #> ############### BEGIN SANN ################
-    #> Cov-model spherical 
-    #> final value SANN 120.9855 
+    #> final value SANN 158.9134 
     #> ############### END SANN - BEGIN OPTIM ################
     #> N = 3, M = 5 machine precision = 2.22045e-16
     #> 
@@ -639,10 +516,10 @@ fit_sp <- lda_sp(
     #> segments explored during Cauchy searches 1
     #> BFGS updates skipped 0
     #> active bounds at final generalized Cauchy point 0
-    #> norm of the final projected gradient 4.77201e-08
-    #> final function value 120.986
+    #> norm of the final projected gradient 5.13865e-08
+    #> final function value 158.913
     #> 
-    #> final  value 120.985518 
+    #> final  value 158.913446 
     #> converged
     #> ############### END  OPTIM ################
     #> prac-range start
@@ -651,17 +528,145 @@ fit_sp <- lda_sp(
     #> covariance model is: spherical
     #> parameter estimates:
     #>   tausq sigmasq     phi   kappa 
-    #>  0.4259  0.5741 29.2953  0.0880 
+    #>  0.2375  0.7625 29.9760 11.1538 
     #> Practical Range with cor=0.05 for asymptotic range: NULL
     #> 
-    #> variofit: minimised weighted sum of squares = 120.9855
+    #> variofit: minimised weighted sum of squares = 158.9134
+
+![](README_files/figure-markdown_github/unnamed-chunk-6-2.png)
+
+    #> **************************************************************************
+    #> Model chosen for Variable l = 2  is  matern 
+    #> with Parameters  0.5 198.894 0.5 0.03249196  (tausq,phi,sigmasq,kappa)
+    #> Practical Range with Corr<0.01 is 351.8351 
+    #> **************************************************************************
+    #> pars= 500 0.2  (phi,tausq)
+    #> variog: computing omnidirectional variogram
+    #> variogram finished
+    #> Fit Model= matern 
+    #> variofit: covariance model used is matern 
+    #> variofit: weights used: npairs 
+    #> variofit: minimisation function used: optim 
+    #> ############### BEGIN SANN ################
+    #> Cov-model matern 
+    #> final value SANN 127.4264 
+    #> ############### END SANN - BEGIN OPTIM ################
+    #> N = 3, M = 5 machine precision = 2.22045e-16
+    #> Line search cannot locate an adequate point after 20 function
+    #> and gradient evaluations
+    #> final  value 127.426427 
+    #> stopped after 0 iterations
+    #> ############### END  OPTIM ################
+    #> prac-range start
+    #> prac-range end
+    #> variofit: model parameters estimated by WLS (weighted least squares):
+    #> covariance model is: matern
+    #> parameter estimates:
+    #>    tausq  sigmasq      phi    kappa 
+    #>   0.5000   0.5000 178.2033   0.0590 
+    #> Practical Range with cor=0.05 for asymptotic range: NULL
+    #> 
+    #> variofit: minimised weighted sum of squares = 127.4264
+    #> Fit Model= exponential 
+    #> variofit: covariance model used is exponential 
+    #> variofit: weights used: npairs 
+    #> variofit: minimisation function used: optim 
+    #> ############### BEGIN SANN ################
+    #> Cov-model exponential 
+    #> final value SANN 225.3816 
+    #> ############### END SANN - BEGIN OPTIM ################
+    #> N = 3, M = 5 machine precision = 2.22045e-16
+    #> 
+    #> iterations 0
+    #> function evaluations 1
+    #> segments explored during Cauchy searches 0
+    #> BFGS updates skipped 0
+    #> active bounds at final generalized Cauchy point 0
+    #> norm of the final projected gradient 0
+    #> final function value 225.382
+    #> 
+    #> final  value 225.381561 
+    #> converged
+    #> ############### END  OPTIM ################
+    #> prac-range start
+    #> prac-range end
+    #> variofit: model parameters estimated by WLS (weighted least squares):
+    #> covariance model is: exponential
+    #> parameter estimates:
+    #>   tausq sigmasq     phi   kappa 
+    #>  0.5000  0.5000 20.0000  4.2941 
+    #> Practical Range with cor=0.05 for asymptotic range: NULL
+    #> 
+    #> variofit: minimised weighted sum of squares = 225.3816
+    #> Fit Model= gaussian 
+    #> variofit: covariance model used is gaussian 
+    #> variofit: weights used: npairs 
+    #> variofit: minimisation function used: optim 
+    #> ############### BEGIN SANN ################
+    #> Cov-model gaussian 
+    #> final value SANN 217.4803 
+    #> ############### END SANN - BEGIN OPTIM ################
+    #> N = 3, M = 5 machine precision = 2.22045e-16
+    #> 
+    #> iterations 0
+    #> function evaluations 1
+    #> segments explored during Cauchy searches 0
+    #> BFGS updates skipped 0
+    #> active bounds at final generalized Cauchy point 0
+    #> norm of the final projected gradient 0
+    #> final function value 217.48
+    #> 
+    #> final  value 217.480277 
+    #> converged
+    #> ############### END  OPTIM ################
+    #> prac-range start
+    #> prac-range end
+    #> variofit: model parameters estimated by WLS (weighted least squares):
+    #> covariance model is: gaussian
+    #> parameter estimates:
+    #>   tausq sigmasq     phi   kappa 
+    #>  0.5000  0.5000 20.0000  4.2941 
+    #> Practical Range with cor=0.05 for asymptotic range: NULL
+    #> 
+    #> variofit: minimised weighted sum of squares = 217.4803
+    #> Fit Model= spherical 
+    #> variofit: covariance model used is spherical 
+    #> variofit: weights used: npairs 
+    #> variofit: minimisation function used: optim 
+    #> ############### BEGIN SANN ################
+    #> Cov-model spherical 
+    #> final value SANN 212.7942 
+    #> ############### END SANN - BEGIN OPTIM ################
+    #> N = 3, M = 5 machine precision = 2.22045e-16
+    #> 
+    #> iterations 1
+    #> function evaluations 3
+    #> segments explored during Cauchy searches 1
+    #> BFGS updates skipped 0
+    #> active bounds at final generalized Cauchy point 0
+    #> norm of the final projected gradient 4.02167e-09
+    #> final function value 212.794
+    #> 
+    #> final  value 212.794181 
+    #> converged
+    #> ############### END  OPTIM ################
+    #> prac-range start
+    #> prac-range end
+    #> variofit: model parameters estimated by WLS (weighted least squares):
+    #> covariance model is: spherical
+    #> parameter estimates:
+    #>   tausq sigmasq     phi   kappa 
+    #>  0.4534  0.5466 36.8735  0.2772 
+    #> Practical Range with cor=0.05 for asymptotic range: NULL
+    #> 
+    #> variofit: minimised weighted sum of squares = 212.7942
 
 ![](README_files/figure-markdown_github/unnamed-chunk-6-3.png)
 
     #> **************************************************************************
     #> Model chosen for Variable l = 3  is  matern 
-    #> with Parameters  0.5 278.3451 0.5 0.02458314  (tausq,phi,sigmasq,kappa)
-    #> Practical Range with Corr<0.01 is 429.8775 
+    #> with Parameters  0.5 178.2033 0.5 0.05902917  (tausq,phi,sigmasq,kappa)
+    #> Practical Range with Corr<0.01 is 405.6586 
     #> **************************************************************************
     #> pars= 500 0.2  (phi,tausq)
     #> variog: computing omnidirectional variogram
@@ -672,13 +677,22 @@ fit_sp <- lda_sp(
     #> variofit: minimisation function used: optim 
     #> ############### BEGIN SANN ################
     #> Cov-model matern 
-    #> final value SANN 456.8155 
+    #> final value SANN 201.9839 
     #> ############### END SANN - BEGIN OPTIM ################
     #> N = 3, M = 5 machine precision = 2.22045e-16
-    #> Line search cannot locate an adequate point after 20 function
-    #> and gradient evaluations
-    #> final  value 456.815490 
-    #> stopped after 0 iterations
+    #> 
+    #> iterations 1
+    #> function evaluations 21
+    #> segments explored during Cauchy searches 1
+    #> BFGS updates skipped 0
+    #> active bounds at final generalized Cauchy point 1
+    #> norm of the final projected gradient 0.00082139
+    #> final function value 201.984
+    #> 
+    #> Warning:  more than 10 function and gradient evaluations
+    #>    in the last line search
+    #> final  value 201.983937 
+    #> converged
     #> ############### END  OPTIM ################
     #> prac-range start
     #> prac-range end
@@ -686,22 +700,22 @@ fit_sp <- lda_sp(
     #> covariance model is: matern
     #> parameter estimates:
     #>    tausq  sigmasq      phi    kappa 
-    #>   0.5000   0.5000 195.4848   0.1899 
+    #>   0.5000   0.5000 425.4309   0.1210 
     #> Practical Range with cor=0.05 for asymptotic range: NULL
     #> 
-    #> variofit: minimised weighted sum of squares = 456.8155
+    #> variofit: minimised weighted sum of squares = 201.9839
     #> Fit Model= exponential 
     #> variofit: covariance model used is exponential 
     #> variofit: weights used: npairs 
     #> variofit: minimisation function used: optim 
     #> ############### BEGIN SANN ################
     #> Cov-model exponential 
-    #> final value SANN 608.6382 
+    #> final value SANN 568.5608 
     #> ############### END SANN - BEGIN OPTIM ################
     #> N = 3, M = 5 machine precision = 2.22045e-16
     #> Line search cannot locate an adequate point after 20 function
     #> and gradient evaluations
-    #> final  value 608.638204 
+    #> final  value 568.560759 
     #> stopped after 0 iterations
     #> ############### END  OPTIM ################
     #> prac-range start
@@ -710,22 +724,22 @@ fit_sp <- lda_sp(
     #> covariance model is: exponential
     #> parameter estimates:
     #>    tausq  sigmasq      phi    kappa 
-    #>   0.5000   0.5000 107.2321   0.5353 
+    #>   0.5000   0.5000 132.7707   4.4589 
     #> Practical Range with cor=0.05 for asymptotic range: NULL
     #> 
-    #> variofit: minimised weighted sum of squares = 608.6382
+    #> variofit: minimised weighted sum of squares = 568.5608
     #> Fit Model= gaussian 
     #> variofit: covariance model used is gaussian 
     #> variofit: weights used: npairs 
     #> variofit: minimisation function used: optim 
     #> ############### BEGIN SANN ################
     #> Cov-model gaussian 
-    #> final value SANN 1147.707 
+    #> final value SANN 1248.972 
     #> ############### END SANN - BEGIN OPTIM ################
     #> N = 3, M = 5 machine precision = 2.22045e-16
     #> Line search cannot locate an adequate point after 20 function
     #> and gradient evaluations
-    #> final  value 1147.706791 
+    #> final  value 1248.972346 
     #> stopped after 0 iterations
     #> ############### END  OPTIM ################
     #> prac-range start
@@ -734,22 +748,22 @@ fit_sp <- lda_sp(
     #> covariance model is: gaussian
     #> parameter estimates:
     #>    tausq  sigmasq      phi    kappa 
-    #>   0.5000   0.5000 125.5276  15.3617 
+    #>   0.5000   0.5000 135.4638  17.5374 
     #> Practical Range with cor=0.05 for asymptotic range: NULL
     #> 
-    #> variofit: minimised weighted sum of squares = 1147.707
+    #> variofit: minimised weighted sum of squares = 1248.972
     #> Fit Model= spherical 
     #> variofit: covariance model used is spherical 
     #> variofit: weights used: npairs 
     #> variofit: minimisation function used: optim 
     #> ############### BEGIN SANN ################
     #> Cov-model spherical 
-    #> final value SANN 919.9938 
+    #> final value SANN 966.2928 
     #> ############### END SANN - BEGIN OPTIM ################
     #> N = 3, M = 5 machine precision = 2.22045e-16
     #> Line search cannot locate an adequate point after 20 function
     #> and gradient evaluations
-    #> final  value 919.993831 
+    #> final  value 966.292751 
     #> stopped after 0 iterations
     #> ############### END  OPTIM ################
     #> prac-range start
@@ -758,17 +772,17 @@ fit_sp <- lda_sp(
     #> covariance model is: spherical
     #> parameter estimates:
     #>    tausq  sigmasq      phi    kappa 
-    #>   0.5000   0.5000 296.5748   0.1437 
+    #>   0.5000   0.5000 346.8240   0.1171 
     #> Practical Range with cor=0.05 for asymptotic range: NULL
     #> 
-    #> variofit: minimised weighted sum of squares = 919.9938
+    #> variofit: minimised weighted sum of squares = 966.2928
 
 ![](README_files/figure-markdown_github/unnamed-chunk-6-4.png)
 
     #> **************************************************************************
     #> Model chosen for Variable l = 4  is  matern 
-    #> with Parameters  0.5 195.4848 0.5 0.1898888  (tausq,phi,sigmasq,kappa)
-    #> Practical Range with Corr<0.01 is 665.7704 
+    #> with Parameters  0.5 425.4309 0.5 0.1209587  (tausq,phi,sigmasq,kappa)
+    #> Practical Range with Corr<0.01 is 1251.828 
     #> **************************************************************************
     #> pars= 500 0.2  (phi,tausq)
     #> variog: computing omnidirectional variogram
@@ -779,12 +793,12 @@ fit_sp <- lda_sp(
     #> variofit: minimisation function used: optim 
     #> ############### BEGIN SANN ################
     #> Cov-model matern 
-    #> final value SANN 2866.434 
+    #> final value SANN 177.8599 
     #> ############### END SANN - BEGIN OPTIM ################
     #> N = 3, M = 5 machine precision = 2.22045e-16
     #> Line search cannot locate an adequate point after 20 function
     #> and gradient evaluations
-    #> final  value 2866.433515 
+    #> final  value 177.859925 
     #> stopped after 0 iterations
     #> ############### END  OPTIM ################
     #> prac-range start
@@ -793,22 +807,22 @@ fit_sp <- lda_sp(
     #> covariance model is: matern
     #> parameter estimates:
     #>    tausq  sigmasq      phi    kappa 
-    #>   0.5000   0.5000 192.7191   0.2923 
+    #>   0.5000   0.5000 468.9378   0.1377 
     #> Practical Range with cor=0.05 for asymptotic range: NULL
     #> 
-    #> variofit: minimised weighted sum of squares = 2866.434
+    #> variofit: minimised weighted sum of squares = 177.8599
     #> Fit Model= exponential 
     #> variofit: covariance model used is exponential 
     #> variofit: weights used: npairs 
     #> variofit: minimisation function used: optim 
     #> ############### BEGIN SANN ################
     #> Cov-model exponential 
-    #> final value SANN 2937.744 
+    #> final value SANN 596.0554 
     #> ############### END SANN - BEGIN OPTIM ################
     #> N = 3, M = 5 machine precision = 2.22045e-16
     #> Line search cannot locate an adequate point after 20 function
     #> and gradient evaluations
-    #> final  value 2937.743755 
+    #> final  value 596.055383 
     #> stopped after 0 iterations
     #> ############### END  OPTIM ################
     #> prac-range start
@@ -817,23 +831,32 @@ fit_sp <- lda_sp(
     #> covariance model is: exponential
     #> parameter estimates:
     #>    tausq  sigmasq      phi    kappa 
-    #>   0.5000   0.5000 145.6328   0.0238 
+    #>   0.5000   0.5000 171.0668  30.3448 
     #> Practical Range with cor=0.05 for asymptotic range: NULL
     #> 
-    #> variofit: minimised weighted sum of squares = 2937.744
+    #> variofit: minimised weighted sum of squares = 596.0554
     #> Fit Model= gaussian 
     #> variofit: covariance model used is gaussian 
     #> variofit: weights used: npairs 
     #> variofit: minimisation function used: optim 
     #> ############### BEGIN SANN ################
     #> Cov-model gaussian 
-    #> final value SANN 3762.493 
+    #> final value SANN 1503.677 
     #> ############### END SANN - BEGIN OPTIM ################
     #> N = 3, M = 5 machine precision = 2.22045e-16
-    #> Line search cannot locate an adequate point after 20 function
-    #> and gradient evaluations
-    #> final  value 3762.493180 
-    #> stopped after 0 iterations
+    #> 
+    #> iterations 1
+    #> function evaluations 19
+    #> segments explored during Cauchy searches 1
+    #> BFGS updates skipped 0
+    #> active bounds at final generalized Cauchy point 1
+    #> norm of the final projected gradient 5.49107e-08
+    #> final function value 1503.68
+    #> 
+    #> Warning:  more than 10 function and gradient evaluations
+    #>    in the last line search
+    #> final  value 1503.676780 
+    #> converged
     #> ############### END  OPTIM ################
     #> prac-range start
     #> prac-range end
@@ -841,22 +864,22 @@ fit_sp <- lda_sp(
     #> covariance model is: gaussian
     #> parameter estimates:
     #>    tausq  sigmasq      phi    kappa 
-    #>   0.5000   0.5000 189.6976   0.1095 
+    #>   0.5000   0.5000 162.4886   1.4442 
     #> Practical Range with cor=0.05 for asymptotic range: NULL
     #> 
-    #> variofit: minimised weighted sum of squares = 3762.493
+    #> variofit: minimised weighted sum of squares = 1503.677
     #> Fit Model= spherical 
     #> variofit: covariance model used is spherical 
     #> variofit: weights used: npairs 
     #> variofit: minimisation function used: optim 
     #> ############### BEGIN SANN ################
     #> Cov-model spherical 
-    #> final value SANN 3248.576 
+    #> final value SANN 1226.872 
     #> ############### END SANN - BEGIN OPTIM ################
     #> N = 3, M = 5 machine precision = 2.22045e-16
     #> Line search cannot locate an adequate point after 20 function
     #> and gradient evaluations
-    #> final  value 3248.576052 
+    #> final  value 1226.872316 
     #> stopped after 0 iterations
     #> ############### END  OPTIM ################
     #> prac-range start
@@ -865,32 +888,32 @@ fit_sp <- lda_sp(
     #> covariance model is: spherical
     #> parameter estimates:
     #>    tausq  sigmasq      phi    kappa 
-    #>   0.5000   0.5000 463.4724   8.4454 
+    #>   0.5000   0.5000 422.9168   0.0478 
     #> Practical Range with cor=0.05 for asymptotic range: NULL
     #> 
-    #> variofit: minimised weighted sum of squares = 3248.576
+    #> variofit: minimised weighted sum of squares = 1226.872
 
 ![](README_files/figure-markdown_github/unnamed-chunk-6-5.png)
 
     #> **************************************************************************
     #> Model chosen for Variable l = 5  is  matern 
-    #> with Parameters  0.5 192.7191 0.5 0.292268  (tausq,phi,sigmasq,kappa)
-    #> Practical Range with Corr<0.01 is 750.9865 
+    #> with Parameters  0.5 468.9378 0.5 0.1377268  (tausq,phi,sigmasq,kappa)
+    #> Practical Range with Corr<0.01 is 1440.376 
     #> **************************************************************************
 
 Lastly we predict and then compare classification error rates
 
 ``` r
 trace<-1 # to suppress oputput for each field to be classified, set to 2 to show output
-# use fit_sp (conditional spatial LDA) to predict classes
+# use fit_sp (spatial conditional LDA) to predict classes
 pred_sp <- predict_cond(fit_sp, data_test, coords = coords, LL = TRUE, trace = trace, blocks = "field", corr_min= 0.1)
 #> Spatial prediction starts
-#> For corr= 0.1  the practical ranges are 32.312 26.147 37.202 264.992 335.749 (max_dist 1000 )
+#> For corr= 0.1  the practical ranges are 50.82 45.75 93.279 424.883 514.355 (max_dist 1000 )
 #> Conditional prediction starts...
 #>  
-#> Time needed in secs for prediction 98.73 
+#> Time needed in secs for prediction 182.65 
 #> Calculation Log-likelihood of training set starts... 
-#> Time needed in secs for Log-likelihood of training set 2.67
+#> Time needed in secs for Log-likelihood of training set 2.62
 
 
 # use fit_sp (unconditional standard LDA) to predict classes
@@ -910,20 +933,20 @@ cat("Compare Error Rates\n")
 #> Compare Error Rates
 
 cat("error rate LDA",mean(pred_lda$class != data$croptype[-s_srs]),"\n")
-#> error rate LDA 0.3400831
+#> error rate LDA 0.3208723
 cat("error rate majority filter",mean(pred_maj != data$croptype[-s_srs]),"\n")
-#> error rate majority filter 0.1428571
+#> error rate majority filter 0.1188251
 
 cat("error rate spatial cond LDA",mean(pred_sp$pred != data$croptype[-s_srs]),"\n")
-#> error rate spatial cond LDA 0.05941255
+#> error rate spatial cond LDA 0.03204272
 cat("error rate spatial uncond LDA",mean(pred_sp$pred_un != data$croptype[-s_srs]),"\n")
-#> error rate spatial uncond LDA 0.1094793
+#> error rate spatial uncond LDA 0.09078772
 
-# 2 methods obtaining the same results
+# 2 methods obtaining the same results, either using fit_ind or fit_sp
 cat("error rate ind LDA",mean(pred_ind$pred != data$croptype[-s_srs]),"\n")
-#> error rate ind LDA 0.1094793
+#> error rate ind LDA 0.09078772
 cat("error rate ind LDA",mean(pred_ind_lda$pred != data$croptype[-s_srs]),"\n")
-#> error rate ind LDA 0.1094793
+#> error rate ind LDA 0.09078772
 
 # log-lik of training set under independence 
 pred_ind$LLmodel
@@ -931,7 +954,7 @@ pred_ind$LLmodel
 
 # log-lik of training set under spatial model
 pred_sp$LLmodel
-#> [1] -6358.126
+#> [1] -6345.438
 
 
 all.equal(as.integer(pred_sp$pred_un),as.integer(pred_ind$pred))
